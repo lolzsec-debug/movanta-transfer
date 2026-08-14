@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { HighwayIntro } from "@/components/intro/HighwayIntro";
+import { withBasePath } from "@/lib/basePath";
 import { Hero } from "@/components/Hero";
 import { ProblemSection } from "@/components/ProblemSection";
 import { SolutionSection } from "@/components/SolutionSection";
@@ -27,6 +28,10 @@ export default function Home() {
             '(function(){try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;document.documentElement.setAttribute("data-intro","")}catch(e){}})()',
         }}
       />
+      {/* Start the intro's model downloads at HTML-parse time so the scene
+          usually has them before its fallback gate expires. */}
+      <link rel="preload" as="fetch" href={withBasePath("/models/porsche-911.glb")} />
+      <link rel="preload" as="fetch" href={withBasePath("/models/tunnel-road.glb")} />
       <HighwayIntro />
       <Navbar />
       <main>

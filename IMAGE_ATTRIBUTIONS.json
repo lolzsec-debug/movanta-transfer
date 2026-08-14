@@ -1,4 +1,10 @@
 {
+ "intro-tunnel-3d": {
+  "title": "Tunnel Road — 3D model used in the landing intro (public/models/tunnel-road.glb)",
+  "page": "https://sketchfab.com/3d-models/tunnel-road-9022ca0e48924aad96123389d5322a7d",
+  "license": "CC BY 4.0",
+  "artist": "<a href=\"https://sketchfab.com/lowpoly3dmodels\">Low poly 3d Models</a>"
+ },
  "intro-car-3d": {
   "title": "(FREE) Porsche 911 Carrera 4S — 3D model used in the landing intro (public/models/porsche-911.glb, compressed from the original)",
   "page": "https://sketchfab.com/3d-models/free-porsche-911-carrera-4s-d01b254483794de3819786d93e0e1ebf",
