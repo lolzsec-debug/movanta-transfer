@@ -1,0 +1,320 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #08090a;
+  --color-bg-secondary: #101214;
+  --color-card: #17191c;
+  --color-surface: #1e2125;
+  --color-yellow: #ffd400;
+  --color-yellow-warm: #f6be00;
+  --color-text-primary: #f7f8fa;
+  --color-text-secondary: #a9afb8;
+  --color-text-muted: #737a84;
+  --color-metal: #c6cbd1;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  /* Foreground tint base: white in dark mode, near-black in light mode.
+     Used with opacity modifiers (ink/10 etc.) for hairlines and surface tints
+     that must invert with the theme. */
+  --color-ink: #ffffff;
+  color-scheme: dark;
+}
+
+html.light {
+  --color-bg: #f5f6f8;
+  --color-bg-secondary: #eceef1;
+  --color-card: #ffffff;
+  --color-surface: #f0f1f4;
+  --color-text-primary: #14171c;
+  --color-text-secondary: #4d555f;
+  --color-text-muted: #7b828c;
+  --color-metal: #5a626c;
+  --color-border: rgba(10, 13, 17, 0.1);
+  --color-border-strong: rgba(10, 13, 17, 0.16);
+  --color-ink: #0b0e12;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-card: var(--color-card);
+  --color-surface: var(--color-surface);
+  --color-yellow: var(--color-yellow);
+  --color-yellow-warm: var(--color-yellow-warm);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-metal: var(--color-metal);
+  --color-ink: var(--color-ink);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.6s ease-out both;
+  --animate-dash: dash 8s linear infinite;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -200;
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(0.92);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Pre-hydration cover for the garage intro (set by the inline script in
+   page.tsx). Sits above the page but below the intro overlay (z-100), which
+   removes the attribute once its canvas is up. The delayed failsafe animation
+   reveals the page even if hydration never completes. */
+html[data-intro] {
+  overflow: hidden;
+}
+
+html[data-intro]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: #08090a;
+  animation: intro-failsafe 0.6s ease 8s both;
+}
+
+@keyframes intro-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Theme switch: the toggle runs a circular reveal through the View Transition
+   API. The default cross-fade is disabled so the WAAPI clip-path animation
+   (see ThemeProvider) is the only motion. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Fallback when startViewTransition is unavailable: ThemeProvider briefly adds
+   .theme-switching so every themed property cross-fades in place. !important
+   is needed to override per-element transition utilities during the switch. */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease,
+    fill 0.4s ease,
+    stroke 0.4s ease,
+    box-shadow 0.4s ease !important;
+}
+
+/* Sun/moon morph inside the theme toggle button. Keyed off html.light rather
+   than React state so the icon is correct before hydration. transform-box is
+   required so scale/translate originate from each circle's own center. */
+.theme-icon {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.light .theme-icon {
+  transform: rotate(90deg);
+}
+.theme-icon-sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.light .theme-icon-sun {
+  transform: scale(0.625);
+}
+.theme-icon-mask {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.light .theme-icon-mask {
+  transform: translate(10px, -12px);
+}
+.theme-icon-rays {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.4);
+  opacity: 0;
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease;
+}
+html.light .theme-icon-rays {
+  transform: scale(1);
+  opacity: 1;
+}
+
+::selection {
+  background: var(--color-yellow);
+  color: #08090a;
+}
+
+.hairline {
+  border-color: var(--color-border);
+}
+
+.hairline-strong {
+  border-color: var(--color-border-strong);
+}
+
+/* Visible focus state for keyboard navigation, independent of color contrast changes */
+:focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Brand-styled range slider: yellow thumb and filled portion on a themed
+   track. Replaces native styling because Safari ignores accent-color on
+   range inputs. --range-fill (set inline by RangeInput) is the filled
+   percentage; WebKit has no ::-moz-range-progress equivalent, so the fill is
+   painted as a partial-width gradient layer on the track. */
+input[type="range"].themed-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.themed-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background:
+    linear-gradient(var(--color-yellow), var(--color-yellow)) 0 0 / var(--range-fill, 100%) 100% no-repeat,
+    color-mix(in oklab, var(--color-ink) 14%, transparent);
+}
+
+.themed-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-yellow);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease;
+}
+
+.themed-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.themed-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ink) 14%, transparent);
+}
+
+.themed-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-yellow);
+}
+
+.themed-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-yellow);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+.themed-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.themed-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 999px;
+}
+
+.themed-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-yellow);
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+.themed-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-yellow-warm);
+}
+
+.themed-scrollbar::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
